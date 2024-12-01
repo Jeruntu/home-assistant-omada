@@ -37,7 +37,7 @@ For local development, use the `Omada Dev` variant.
 This is where the source code resides and where changes can be made.
 Follow the steps below to build and test a new Docker image:
 
-### Build the Docker Image
+### Build the Docker Image Locally
 
 Set the desired version and build the image:
 
@@ -46,6 +46,15 @@ Set the desired version and build the image:
 INSTALL_VER="5.14.32.4"
 docker build . -t omada_stable --build-arg "INSTALL_VER=$INSTALL_VER"
 ```
+
+### Using the Pipeline for Building Dev Images
+
+When you push a feature branch, the pipeline automatically publishes a development image tagged with the branch name.
+For example:
+`jeruntu/home-assistant-omada-dev:beta-5.15.6.4-feature-pipeline_improvements`.
+This image can be used for testing by updating the version in the `Dev` configuration file (`config.yaml`).
+Note: Branch names are sanitized to ensure they conform to Docker's tag naming rules.
+Please don't include these temporary branch tagged images when submitting a PR.
 
 ### Run the Docker Container Locally
 
@@ -61,13 +70,13 @@ for more details and best practices.
 
 1. Update the `mbentley` submodule to the latest `master` branch.
 2. Update the version in `config.yaml` for either `beta` or `stable`.
-   Ensure the version matches one listed
-   [here](https://github.com/mbentley/docker-omada-controller-url/blob/master/omada_ver_to_url.sh).
-3. Test the changes thoroughly in a local environment.
-   Once satisfied, create a pull request (PR) with the updates.
-4. After the PR is merged, create a GitHub release on the `master` branch,
-   ensuring the release tag matches the version specified in `config.yaml`.  
-   Note: The pipeline will fail if the tag and version do not match.
+   Ensure the version matches one listed in
+   [this script](https://github.com/mbentley/docker-omada-controller-url/blob/master/omada_ver_to_url.sh).
+3. Thoroughly test the changes in a local environment.
+   Once the tests pass and you're satisfied, create a pull request (PR) with the updates.
+4. The pipeline will run for the PR, building and publishing Docker images with a `-pr` suffix.
+   After the PR is merged, the pipeline will check if the version specified in `config.yaml` has already been published.
+   If not, the pipeline will retag the PR images to this version.
 
 ## Contribution
 
