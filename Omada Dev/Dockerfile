@@ -8,8 +8,14 @@
 #   4. Use Home Assistant Ubuntu base image
 
 ARG BUILD_ARCH=amd64
-# rebased/repackaged base image that only updates existing packages
-FROM ghcr.io/home-assistant/${BUILD_ARCH}-base-ubuntu:24.04
+# Define base images for different architectures
+FROM ghcr.io/home-assistant/amd64-base-ubuntu:24.04 AS base-amd64
+FROM ghcr.io/home-assistant/aarch64-base-ubuntu:24.04 AS base-arm64
+
+# Select the correct base image based on TARGETARCH (injected by buildx)
+# TARGETARCH is 'amd64' or 'arm64'
+ARG TARGETARCH
+FROM base-${TARGETARCH}
 
 COPY install.sh /
 COPY healthcheck.sh /
