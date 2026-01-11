@@ -5,7 +5,7 @@ Version 6 no longer works on a Raspberry Pi 4 due to the new Mongo DB version be
 
 ## Contribution
 
-This add-on is a fork of Matt Bentleys
+This add-on was originally inspired by Matt Bentleys
 [docker-omada-controller](https://github.com/mbentley/docker-omada-controller)
 and jkunczik [home-assistant-omada](https://github.com/jkunczik/home-assistant-omada)
 would not have been possible without their excellent work.

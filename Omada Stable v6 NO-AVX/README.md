@@ -15,7 +15,7 @@ This allows running Omada Controller v6 on older CPUs (like older Celerons, Pent
 
 ## Contribution
 
-This add-on is a fork of Matt Bentleys
+This add-on was originally inspired by Matt Bentley’s
 [docker-omada-controller](https://github.com/mbentley/docker-omada-controller)
 and jkunczik [home-assistant-omada](https://github.com/jkunczik/home-assistant-omada).
 It incorporates the No-AVX MongoDB build from [fenio/omada-controller-no-avx](https://github.com/fenio/omada-controller-no-avx).
@@ -23,5 +23,6 @@ It incorporates the No-AVX MongoDB build from [fenio/omada-controller-no-avx](ht
 Other than in the original docker omada controller,
 this add-on stores all persistent data in the /data directory,
 so that it is compatible with Home Assistant.
-
+This Add-On would not be possible without the effort of other people.
 Pull requests for version updates or new features are always more than welcome.
+Special thanks goes to DraTrav for pushing this Add-On forward!

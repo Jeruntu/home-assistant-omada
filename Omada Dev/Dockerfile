@@ -1,12 +1,3 @@
-# WARNING: Modified Dockerfile to work with Home Assistant. Do not simply overwrite with Dockerfile from mbentley during update
-# --------
-#
-#   Modifications:
-#   1. Removed maintainer
-#   2. Added ARCH trough home assistant specific `TARGETARCH` and `BUILDARCH`
-#   3. Change volume to `VOLUME ["/data"]`
-#   4. Use Home Assistant Ubuntu base image
-
 ARG BUILD_ARCH=amd64
 # Define base images for different architectures
 FROM ghcr.io/home-assistant/amd64-base-ubuntu:24.04 AS base-amd64

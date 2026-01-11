@@ -14,8 +14,8 @@ if [ ! -d "$LOG_DIR" ]; then
     mkdir -p "$LOG_DIR"
 fi
 
-# Set permissions (Omada user is usually 508:508 based on mbentley, or we check)
-# In mbentley entrypoint, PUID/PGID defaults to 508.
+# Set permissions (Omada user is usually 508:508)
+# PUID/PGID defaults to 508.
 # We should probably run as the same user.
 # But for now, let's just ensure ownership.
 chown -R 508:508 "$DATA_DIR"

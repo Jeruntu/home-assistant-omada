@@ -4,7 +4,7 @@
 
 This add-on integrates the Omada Controller directly into Home Assistant, supporting both 64-bit ARM and x64 processors.
 
-**NOTE** To upgrade to v6, install the new `Omada Stable v6` add-on! 
+**NOTE** To upgrade to v6, install the new `Omada Stable v6` add-on!
 This requires manually backing up the old stable v5 add-on and apply it to the new stable v6 add-on.
 
 ## Add-On Versions
@@ -103,28 +103,27 @@ for more details on how to test within a full Home Assistant environment.
 
 ### Releasing a New Version
 
-1. Update the `mbentley` submodule to the latest `master` branch.
-2. Update the version in `config.yaml` for either `beta` or `stable`.
+1. Update the version in `config.yaml` for either `beta` or `stable`.
    Ensure the version matches one listed in
    [this script](https://github.com/mbentley/docker-omada-controller-url/blob/master/omada_ver_to_url.sh).
    If it is needed to make a new add-on release for the same Omada version,
    a `-ha{d}` suffix can be added to the Omada version.
-3. Thoroughly test the changes in a local environment.
+2. Thoroughly test the changes in a local environment.
    Once the tests pass and you're satisfied, create a pull request (PR) with the updates.
-4. The pipeline will build docker images for every branch,
+3. The pipeline will build docker images for every branch,
    but only push the images to the registry on `master`.
 
 ## Contribution
 
-This add-on wraps Matt Bentley’s
-[docker-omada-controller](https://github.com/mbentley/docker-omada-controller),
-which is included as a Git submodule.
-Special thanks to DraTrav and contributors for advancing this project.
+This add-on was originally inspired by Matt Bentley’s
+[docker-omada-controller](https://github.com/mbentley/docker-omada-controller).
+Special thanks to contributors for advancing this project.
 This add-on was made possible thanks to their outstanding work.
 
 Key differences from the original:
 
 - Persistent data is stored in the `/data` directory, making it compatible with Home Assistant.
+- Managed via S6-Overlay for Home Assistant compatibility.
 
 Contributions are welcome! Feel free to submit pull requests for version updates, bug fixes, or new features.
 
