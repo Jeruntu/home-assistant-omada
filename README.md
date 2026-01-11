@@ -69,6 +69,9 @@ The script automatically detects your architecture and creates a mock Home Assis
 
 # Run with specific Architecture and Version
 ./test_dev.sh aarch64 beta-6.0.0.23
+
+# Run with specific Architecture, Version and Image Name
+./test_dev.sh amd64 beta-6.0.0.23 my-custom-omada:test
 ```
 
 The Web UI will be available at `https://localhost:8043`. You can inspect the logs directly in your terminal.

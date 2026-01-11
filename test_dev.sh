@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-# Usage: ./test_dev.sh [ARCH] [VERSION]
-# Example: ./test_dev.sh amd64 beta-6.0.0.23
+# Usage: ./test_dev.sh [ARCH] [VERSION] [IMAGE_NAME]
+# Example: ./test_dev.sh amd64 beta-6.0.0.23 my-omada:test
 
 # Detect Architecture
 HOST_ARCH=$(uname -m)
@@ -15,12 +15,13 @@ esac
 # Configuration
 ARCH="${1:-${DEFAULT_ARCH}}"
 VERSION="${2:-beta-6.0.0.23}"
-IMAGE_NAME="omada-dev:test"
+IMAGE_NAME="${3:-omada-dev:test}"
 TEST_DIR="/tmp/omada_test_$(date +%s)"
 
-echo "Usage: $0 [ARCH] [VERSION]"
-echo "  Current ARCH:    ${ARCH}"
-echo "  Current VERSION: ${VERSION}"
+echo "Usage: $0 [ARCH] [VERSION] [IMAGE_NAME]"
+echo "  Current ARCH:       ${ARCH}"
+echo "  Current VERSION:    ${VERSION}"
+echo "  Current IMAGE_NAME: ${IMAGE_NAME}"
 echo ""
 
 echo "Building Docker image (Architecture: ${ARCH}, Version: ${VERSION})..."
