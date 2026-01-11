@@ -7,7 +7,7 @@
 #   3. Change volume to `VOLUME ["/data"]`
 #   4. Use Home Assistant Ubuntu base image
 
-ARG BUILD_ARCH
+ARG BUILD_ARCH=amd64
 # rebased/repackaged base image that only updates existing packages
 FROM ghcr.io/home-assistant/${BUILD_ARCH}-base-ubuntu:24.04
 

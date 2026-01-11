@@ -10,8 +10,8 @@ INSTALL_VER="${INSTALL_VER:-}"
 
 # Ensure architecture is supported
 case "${ARCH}" in
-  amd64|arm64) ;; 
-  *) echo "ERROR: Unsupported architecture: ${ARCH}"; exit 1 ;; 
+  amd64|arm64) ;;
+  *) echo "ERROR: Unsupported architecture: ${ARCH}"; exit 1 ;;
 esac
 
 # Install base dependencies
@@ -74,27 +74,27 @@ wget -nv "${OMADA_URL}"
 # Robust Beta Handling
 if [[ "${INSTALL_VER}" =~ ^beta.* ]]; then
   case "${OMADA_URL##*.}" in
-    zip) 
+    zip)
       echo "INFO: Beta zip detected; unzipping and fixing extensions..."
       unzip "${OMADA_TAR}"
       rm -f "${OMADA_TAR}"
       FILENAME_CHECK="$(find . -name "*tar.gz*" | grep -v "zip" | sed 's|^./||')"
       case "${FILENAME_CHECK}" in
-        *_tar.gz.gz) mv -v "${FILENAME_CHECK}" "${FILENAME_CHECK/_tar.gz.gz/.tar.gz}" ;; 
-        *tar.gz.gz)  mv -v "${FILENAME_CHECK}" "${FILENAME_CHECK/tar.gz.gz/.tar.gz}" ;; 
+        *_tar.gz.gz) mv -v "${FILENAME_CHECK}" "${FILENAME_CHECK/_tar.gz.gz/.tar.gz}" ;;
+        *tar.gz.gz)  mv -v "${FILENAME_CHECK}" "${FILENAME_CHECK/tar.gz.gz/.tar.gz}" ;;
       esac
       if [ -z "$(find . -name "*.tar.gz" -maxdepth 1 | sed 's|^./||')" ] && [ -n "$(find . -name "*.tar.gz" | sed 's|^./||')" ]; then
         mv -v "$(find . -name "*.tar.gz" | sed 's|^./||')" .
       fi
       OMADA_TAR="$(ls *.tar.gz)"
-      ;; 
+      ;;
     gz)
       if ! ls -- *.tar.gz >/dev/null 2>&1; then
         echo "INFO: Beta .gz detected; gunzipping..."
         gunzip "${OMADA_TAR}"
         OMADA_TAR="$(ls -- *.tar.gz*)"
       fi
-      ;; 
+      ;;
   esac
 fi
 
@@ -122,13 +122,8 @@ for d in "${DIRS_TO_COPY[@]}"; do
 done
 
 # Prepare Properties
-{
-  echo ""
-  echo "# external mongodb"
-  echo "mongo.external=false"
-  echo "eap.mongod.uri=mongodb://127.0.0.1:27217/omada"
-} >> "${OMADA_DIR}/properties/omada.properties"
-
+# NOTE: MongoDB settings are managed at runtime in entrypoint.sh to ensure
+# the controller connects to the S6-managed MongoDB instance.
 cp -r "${OMADA_DIR}/properties/" "${OMADA_DIR}/properties.defaults"
 ln -sf "$(command -v mongod)" "${OMADA_DIR}/bin/mongod"
 

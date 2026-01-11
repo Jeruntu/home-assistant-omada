@@ -53,29 +53,42 @@ Follow the documentation to configure Omada under `Additional Hosts` as follows:
 
 ## Developing
 
-For local development, use the `Omada Dev` variant.
-This is where the source code resides and where changes can be made.
-Follow the steps below to build and test a new Docker image:
+For local development, use the `Omada Dev` directory.
+A helper script `test_dev.sh` is provided in the root of the repository to simplify building and testing the add-on locally on your machine (macOS/Linux).
 
-### Build the Docker Image Locally
+### Local Testing with test_dev.sh
 
-Set the desired version and build the image:
+The script automatically detects your architecture and creates a mock Home Assistant environment with a valid `options.json`.
 
 ```bash
-# INSTALL_VER should match the version in the config.yaml
-INSTALL_VER="5.14.32.4"
-docker build . -t omada_stable --build-arg "INSTALL_VER=$INSTALL_VER"
+# Run the test script (auto-detects architecture, uses default version)
+./test_dev.sh
+
+# Run with specific Architecture
+./test_dev.sh amd64
+
+# Run with specific Architecture and Version
+./test_dev.sh aarch64 beta-6.0.0.23
 ```
 
-### Run the Docker Container Locally
+The Web UI will be available at `https://localhost:8043`. You can inspect the logs directly in your terminal.
+
+### Manual Build (Alternative)
+
+If you prefer to build manually, ensure you provide the required build arguments:
 
 ```bash
-docker run --rm -p 8043:8043 -v vol_omada_stable:/data omada_stable
+# Build from the repository root
+docker build \
+  --build-arg BUILD_ARCH=amd64 \
+  --build-arg INSTALL_VER=6.0.0.23 \
+  -t omada-dev:local \
+  "Omada Dev"
 ```
 
 Refer to the
 [Home Assistant Add-On Testing Documentation](https://developers.home-assistant.io/docs/add-ons/testing)
-for more details and best practices.
+for more details on how to test within a full Home Assistant environment.
 
 ### Releasing a New Version
 

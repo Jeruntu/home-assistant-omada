@@ -10,34 +10,18 @@ bashio::log.info "Preparing Home Assistant environment..."
 # Create logs directory in persistent volume
 mkdir -p "/data/logs"
 
-# Handle Data Migration/Backup
-if [ ! -d /data/data ]; then
-  if [ -d /opt/tplink/EAPController/data_backup ]; then
-    bashio::log.info "Restoring /data/data from backup..."
-    cp -r /opt/tplink/EAPController/data_backup /data/data
-  fi
-
-  # Migration from old file structure
-  for dir in db keystore pdf;
-  do
-    if [ -d "/data/$dir" ]; then
-      bashio::log.info "Migrating /data/$dir to /data/data/$dir"
-      cp -r "/data/$dir" "/data/data/"
-      rm -rf "/data/$dir"
-    fi
-  done
-fi
-
 # Set permissions on /data
 # We assume PUID/PGID 508 for omada user
 chown -R 508:508 "/data"
 
 # SSL Configuration
+SSL_CERT_NAME=""
+SSL_KEY_NAME=""
 if bashio::config.true 'enable_hass_ssl'; then
   bashio::log.info "Configuring SSL from Home Assistant..."
   SSL_CERT_NAME=$(bashio::config 'certfile')
   SSL_KEY_NAME=$(bashio::config 'keyfile')
-  
+
   # Copy to temporary location for Omada import logic
   mkdir -p /cert
   cp "$SSL_CERT_NAME" /cert/
@@ -49,7 +33,6 @@ if bashio::config.true 'enable_hass_ssl'; then
 fi
 
 # MongoDB Configuration
-export MONGO_EXTERNAL=true # Always force "external" mode for Omada properties
 bashio::log.info "Using internal MongoDB (S6 Managed)"
 export EAP_MONGOD_URI="mongodb://127.0.0.1:27217/omada"
 
@@ -75,6 +58,22 @@ if ! id -u "${PUSERNAME}" >/dev/null 2>&1; then
   useradd -u "${PUID}" -g "${PGID}" -d /opt/tplink/EAPController/data -s /bin/sh "${PUSERNAME}"
 fi
 
+# symlink to home assistant data dir to the omada data dir to make configuration persistent
+bashio::log.info "Verifying data directories and symlinks..."
+mkdir -p /data/data
+mkdir -p /data/logs
+chown -R "${PUSERNAME}:${PGROUP}" /data
+
+if [ -d "/opt/tplink/EAPController/data" ] && [ ! -L "/opt/tplink/EAPController/data" ]; then
+  mv /opt/tplink/EAPController/data /opt/tplink/EAPController/data_backup
+  ln -s /data/data /opt/tplink/EAPController/data
+fi
+
+if [ -d "/opt/tplink/EAPController/logs" ] && [ ! -L "/opt/tplink/EAPController/logs" ]; then
+  rm -rf /opt/tplink/EAPController/logs
+  ln -s /data/logs /opt/tplink/EAPController/logs
+fi
+
 # Restore default properties if missing
 for FILE in /opt/tplink/EAPController/properties.defaults/*;
 do
@@ -86,18 +85,6 @@ do
     chown "${PUSERNAME}:${PGROUP}" "${DEST}"
   fi
 done
-
-# Create/Verify Data Directories
-DIRS=("data/html" "data/pdf" "data/db" "logs")
-bashio::log.info "Verifying data directories..."
-for d in "${DIRS[@]}"; do
-  dir_path="/opt/tplink/EAPController/${d}"
-  if [ ! -d "${dir_path}" ]; then
-    mkdir -p "${dir_path}"
-  fi
-  chown -R "${PUSERNAME}:${PGROUP}" "${dir_path}"
-done
-chown -R "${PUSERNAME}:${PGROUP}" "/opt/tplink/EAPController/properties"
 
 # Import SSL Certs to Keystore
 KEYSTORE_DIR="/opt/tplink/EAPController/data/keystore"
@@ -118,7 +105,7 @@ if [ -f "/cert/${SSL_KEY_NAME}" ] && [ -f "/cert/${SSL_CERT_NAME}" ]; then
     -passout pass:tplink
   chown "${PUSERNAME}:${PGROUP}" "${KEYSTORE_DIR}/eap.keystore"
   chmod 400 "${KEYSTORE_DIR}/eap.keystore"
-  
+
   # Cleanup temp certs
   rm -rf /cert
 fi
@@ -129,7 +116,7 @@ PORTS="MANAGE_HTTP_PORT MANAGE_HTTPS_PORT PORTAL_HTTP_PORT PORTAL_HTTPS_PORT POR
 for VAR_NAME in $PORTS;
 do
   KEY="$(echo "${VAR_NAME}" | tr '[:upper:]' '[:lower:]' | tr '_' '.')"
-  VAL="${!VAR_NAME}"
+  eval VAL="\${$VAR_NAME:-}"
   if [ -n "${VAL}" ]; then
     if grep -q "^${KEY}=" /opt/tplink/EAPController/properties/omada.properties; then
       bashio::log.info "Setting '${KEY}' to ${VAL}"
@@ -141,10 +128,24 @@ do
 done
 
 # Update omada.properties: MongoDB
+# NOTE: mongo.external=true tells the Omada Java app NOT to manage the MongoDB process.
+# We set this because MongoDB is already managed as a separate S6 service in this add-on.
 bashio::log.info "Updating MongoDB configuration in omada.properties..."
 SAFE_URI=$(printf '%s\n' "$EAP_MONGOD_URI" | sed -e 's/[\/&]/\\&/g')
-sed -i "s~^mongo.external=.*$~mongo.external=${MONGO_EXTERNAL}~g" /opt/tplink/EAPController/properties/omada.properties
-sed -i "s~^eap.mongod.uri=.*$~eap.mongod.uri=${SAFE_URI}~g" /opt/tplink/EAPController/properties/omada.properties
+
+if grep -q "^mongo.external=" /opt/tplink/EAPController/properties/omada.properties; then
+  sed -i "s~^mongo.external=.*$~mongo.external=true~g" /opt/tplink/EAPController/properties/omada.properties
+else
+  echo "mongo.external=true" >> /opt/tplink/EAPController/properties/omada.properties
+fi
+
+if grep -q "^eap.mongod.uri=" /opt/tplink/EAPController/properties/omada.properties; then
+  sed -i "s~^eap.mongod.uri=.*$~eap.mongod.uri=${SAFE_URI}~g" /opt/tplink/EAPController/properties/omada.properties
+else
+  echo "eap.mongod.uri=${SAFE_URI}" >> /opt/tplink/EAPController/properties/omada.properties
+fi
+
+chown -R "${PUSERNAME}:${PGROUP}" "/opt/tplink/EAPController/properties"
 
 # CloudSDK Injection
 CLOUDSDK_JAR="$(find /opt/tplink/EAPController/lib -maxdepth 1 -name "cloudsdk-*.jar" | head -n 1)"
@@ -183,4 +184,5 @@ if [ "${SHOW_MONGODB_LOGS:-false}" = "true" ]; then
   gosu "${PUSERNAME}" tail -F -n 0 /opt/tplink/EAPController/logs/mongod.log &
 fi
 
+cd /opt/tplink/EAPController/lib
 exec gosu "${PUSERNAME}" "${@}"
