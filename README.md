@@ -9,9 +9,17 @@ This requires manually backing up the old stable v5 add-on and apply it to the n
 
 ## Add-On Versions
 
-- **Omada Stable v6**: This is the new stable branch, starting from the new major version 6.
-- **Omada Stable**: Old stable branch for Omada v5 releases
-- **Omada Beta**: Omada beta releases
+- **Omada Stable v6**: The new stable branch, starting from Omada major version 6.
+  - **Requires:** Modern x86_64 CPU (with AVX support) OR ARM64 CPU with ARMv8.2 support (e.g. Raspberry Pi 5).
+  - **Incompatible with:** Raspberry Pi 4 (ARMv8.0) and older x86 CPUs without AVX.
+- **Omada Stable v6 NO-AVX**: A special variant of the v6 add-on for older hardware.
+  - **Designed for:** Older x86_64 CPUs (e.g., Celeron J1900, older Pentium/Xeon) that lack AVX instructions.
+  - **Note:** This does **NOT** enable support for Raspberry Pi 4 (which fails due to missing ARMv8.2 instructions, unrelated to AVX).
+- **Omada Stable**: The legacy stable branch for Omada v5.
+  - **Recommended for:** Raspberry Pi 4 users and anyone who cannot upgrade to v6 due to hardware limitations.
+- **Omada Beta**: Contains beta releases of the Omada Controller.
+
+**NOTE:** To upgrade from v5 to v6, you must install the new `Omada Stable v6` add-on separately. This requires manually backing up your v5 configuration (via the Omada web interface) and restoring it into the new v6 instance. Automatic migration is not supported.
 
 ## Installation
 
