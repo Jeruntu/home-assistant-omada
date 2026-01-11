@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        target: ["beta", "stable", "stable-v6"]
+        target: ["beta", "stable", "stable-v6", "stable-v6-no-avx"]
 
     steps:
       - name: Checkout the code
@@ -27,14 +27,29 @@ jobs:
           username: ${{ secrets.DOCKER_USER_NAME }}
           password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
+      - name: Set Build Variables
+        id: vars
+        run: |
+          TARGET="${{ matrix.target }}"
+          if [[ "$TARGET" == "stable-v6-no-avx" ]]; then
+            DIR_NAME="Omada Stable v6 NO-AVX"
+            BUILD_CONTEXT="Omada Stable v6 NO-AVX"
+          else
+            # Standard capitalization logic for other targets
+            CAPITALIZED=$(echo "$TARGET" | tr '-' ' ' | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
+            DIR_NAME="Omada $CAPITALIZED"
+            BUILD_CONTEXT="Omada Dev"
+          fi
+          
+          echo "DIR_NAME=$DIR_NAME" >> $GITHUB_ENV
+          echo "BUILD_CONTEXT=$BUILD_CONTEXT" >> $GITHUB_ENV
+          echo "Directory Name: $DIR_NAME"
+          echo "Build Context: $BUILD_CONTEXT"
+
       - name: Extract Version and Set Tag
         id: extract_version
         run: |
-          capitalize() {
-            echo "$1" | tr '-' ' '| awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}'
-          }
-          CAPITALIZED_TARGET=$(capitalize "${{ matrix.target }}")
-          VERSION_HA=$(yq '.version' "Omada ${CAPITALIZED_TARGET}/config.yaml")
+          VERSION_HA=$(yq '.version' "${{ env.DIR_NAME }}/config.yaml")
           VERSION_OMADA=$(echo $VERSION_HA | sed -E 's/-ha[0-9]+$//')
           DOCKER_IMAGE="${{ secrets.DOCKER_USER_NAME }}/home-assistant-omada"
 
@@ -65,7 +80,7 @@ jobs:
         if: steps.check_image.outputs.exists == 'false'
         uses: docker/build-push-action@v6
         with:
-          context: "Omada\ Dev"
+          context: "${{ env.BUILD_CONTEXT }}"
           build-args: INSTALL_VER=${{ env.VERSION_OMADA }}
           platforms: linux/amd64,linux/arm64
           push: true
