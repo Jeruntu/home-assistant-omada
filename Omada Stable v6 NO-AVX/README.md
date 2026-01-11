@@ -8,8 +8,10 @@ This allows running Omada Controller v6 on older CPUs (like older Celerons, Pent
 ## Compatibility
 
 - **Supported:** x86_64 (amd64) CPUs without AVX support.
-- **Also Supported:** Standard x86_64 CPUs (it works, but is slightly less optimized than the standard add-on).
-- **ARM64:** This add-on also supports ARM64 (using the standard MongoDB binary, as ARM does not use AVX).
+- **Also Supported:** Standard x86_64 CPUs.
+- **ARM64:** This add-on supports ARM64 devices that meet MongoDB 5.0+ requirements (ARMv8.2-A or newer).
+  - **Works on:** Raspberry Pi 5, newer Rockchip boards.
+  - **Does NOT work on:** Raspberry Pi 4, Raspberry Pi 3. These devices lack the required ARMv8.2 instructions for MongoDB 5.0+. Use the v5 add-on instead.
 
 ## Contribution
 
