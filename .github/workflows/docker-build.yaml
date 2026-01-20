@@ -1,4 +1,4 @@
-name: Build Dev Docker Image
+name: Build Docker Image
 
 on:
   push:
@@ -8,6 +8,9 @@ on:
 jobs:
   build-dev-no-push:
     runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        target: ["dev", "no-avx"]
 
     steps:
       - name: Checkout the code
@@ -18,11 +21,26 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Extract Version and Set Tag
+      - name: Set Build Variables
+        run: |
+          TARGET="${{ matrix.target }}"
+
+          if [[ "$TARGET" == "no-avx" ]]; then
+            echo "CONFIG_FILE=Omada Stable v6 NO-AVX/config.yaml" >> $GITHUB_ENV
+            echo "DOCKERFILE=./Omada Dev/noavx.dockerfile" >> $GITHUB_ENV
+            echo "PLATFORMS=linux/amd64" >> $GITHUB_ENV
+            echo "TAG_PREFIX=home-assistant-omada-v6-no-avx" >> $GITHUB_ENV
+          else
+            echo "CONFIG_FILE=Omada Dev/config.yaml" >> $GITHUB_ENV
+            echo "DOCKERFILE=./Omada Dev/Dockerfile" >> $GITHUB_ENV
+            echo "PLATFORMS=linux/amd64,linux/arm64" >> $GITHUB_ENV
+            echo "TAG_PREFIX=home-assistant-omada-dev" >> $GITHUB_ENV
+          fi
+
+      - name: Extract Version
         id: extract_version
         run: |
-          CONFIG_FILE="Omada Dev/config.yaml"
-          VERSION_HA=$(yq '.version' "${CONFIG_FILE}")
+          VERSION_HA=$(yq '.version' "${{ env.CONFIG_FILE }}")
           VERSION_OMADA=$(echo $VERSION_HA | sed -E 's/-ha[0-9]+$//')
           echo "VERSION_OMADA=$VERSION_OMADA" >> $GITHUB_ENV
           echo "Docker Tag: $VERSION_OMADA"
@@ -35,43 +53,8 @@ jobs:
       - name: Build Docker Image
         run: |
           docker buildx build \
-            --platform linux/amd64,linux/arm64 \
-            --file "./Omada Dev/Dockerfile" \
-            --tag "home-assistant-omada-dev:${{ env.VERSION_OMADA }}" \
+            --platform "${{ env.PLATFORMS }}" \
+            --file "${{ env.DOCKERFILE }}" \
+            --tag "${{ env.TAG_PREFIX }}:${{ env.VERSION_OMADA }}" \
             --build-arg INSTALL_VER="${{ env.VERSION_OMADA }}" \
             "./Omada Dev"
-
-  build-no-avx-no-push:
-    runs-on: ubuntu-24.04
-
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Extract Version and Set Tag
-        id: extract_version
-        run: |
-          CONFIG_FILE="Omada Stable v6 NO-AVX/config.yaml"
-          VERSION_HA=$(yq '.version' "${CONFIG_FILE}")
-          VERSION_OMADA=$(echo $VERSION_HA | sed -E 's/-ha[0-9]+$//')
-          echo "VERSION_OMADA=$VERSION_OMADA" >> $GITHUB_ENV
-          echo "Docker Tag: $VERSION_OMADA"
-
-      - name: Check Omada Version Availability
-        uses: ./.github/actions/version-checks
-        with:
-          version: "${{ env.VERSION_OMADA }}"
-
-      - name: Build Docker Image
-        run: |
-          docker buildx build \
-            --platform linux/amd64 \
-            --file "./Omada Stable v6 NO-AVX/Dockerfile" \
-            --tag "home-assistant-omada-v6-no-avx:${{ env.VERSION_OMADA }}" \
-            --build-arg INSTALL_VER="${{ env.VERSION_OMADA }}" \
-            "./Omada Stable v6 NO-AVX"

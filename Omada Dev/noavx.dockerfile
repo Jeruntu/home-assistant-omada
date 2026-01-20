@@ -2,7 +2,7 @@ ARG BUILD_ARCH=amd64
 
 # 1. Get No-AVX MongoDB (AMD64 only)
 # We force platform to amd64 so this stage succeeds even on arm64 builders
-FROM --platform=linux/amd64 ghcr.io/fenio/omada-controller-no-avx:latest AS mongo-source
+FROM --platform=linux/amd64 jeruntu/mongodb-no-avx:latest AS mongo-source
 
 # 2. Define base images
 FROM ghcr.io/home-assistant/amd64-base-ubuntu:24.04 AS base-amd64
@@ -27,7 +27,7 @@ ARG INSTALL_VER
 RUN /install.sh && rm /install.sh
 
 # 4. Conditionally overwrite MongoDB for AMD64
-COPY --from=mongo-source /usr/bin/mongod /tmp/mongod-no-avx
+COPY --from=mongo-source /usr/local/bin/mongod /tmp/mongod-no-avx
 
 RUN if [ "${TARGETARCH}" = "amd64" ]; then \
         echo "AMD64 detected: Installing No-AVX MongoDB binary..."; \

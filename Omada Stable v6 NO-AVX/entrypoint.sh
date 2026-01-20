@@ -1,1 +1,0 @@
-../Omada Dev/entrypoint.sh
