@@ -110,6 +110,12 @@ if [ -f "/cert/${SSL_KEY_NAME}" ] && [ -f "/cert/${SSL_CERT_NAME}" ]; then
   rm -rf /cert
 fi
 
+# Set UPGRADE_HTTPS_PORT from config if present
+if bashio::config.has_value 'upgrade_https_port'; then
+    export UPGRADE_HTTPS_PORT=$(bashio::config 'upgrade_https_port')
+    bashio::log.info "Using configured UPGRADE_HTTPS_PORT: ${UPGRADE_HTTPS_PORT}"
+fi
+
 # Update omada.properties: Ports
 bashio::log.info "Updating port configurations in omada.properties..."
 PORTS="MANAGE_HTTP_PORT MANAGE_HTTPS_PORT PORTAL_HTTP_PORT PORTAL_HTTPS_PORT PORT_ADOPT_V1 PORT_APP_DISCOVERY PORT_UPGRADE_V1 PORT_MANAGER_V1 PORT_MANAGER_V2 PORT_DISCOVERY PORT_TRANSFER_V2 PORT_RTTY PORT_DEVICE_MONITOR UPGRADE_HTTPS_PORT"

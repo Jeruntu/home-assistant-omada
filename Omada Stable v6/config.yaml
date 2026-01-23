@@ -17,11 +17,12 @@ options:
   enable_hass_ssl: false
   certfile: /ssl/fullchain.pem
   keyfile: /ssl/privkey.pem
-  enable_workaround_509: false
+  upgrade_https_port: 8043
 schema:
   enable_hass_ssl: bool
   certfile: str
   keyfile: str
+  upgrade_https_port: int
 ports:
   8088/tcp: 8088
   8043/tcp: 8043
