@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        target: ["beta", "stable", "stable-v6", "stable-v6-no-avx"]
+        target: ["beta", "stable", "stable-v6", "stable-no-avx"]
 
     steps:
       - name: Checkout the code
@@ -31,11 +31,11 @@ jobs:
         id: vars
         run: |
           TARGET="${{ matrix.target }}"
-          
+
           # BUILD_CONTEXT is always "Omada Dev" now that we use direct Dockerfiles
           echo "BUILD_CONTEXT=Omada Dev" >> $GITHUB_ENV
 
-          if [[ "$TARGET" == "stable-v6-no-avx" ]]; then
+          if [[ "$TARGET" == "stable-no-avx" ]]; then
             DIR_NAME="Omada Stable v6 NO-AVX"
             DOCKERFILE_PATH="Omada Dev/noavx.dockerfile"
             PLATFORMS="linux/amd64"
@@ -46,11 +46,11 @@ jobs:
             DOCKERFILE_PATH="Omada Dev/Dockerfile"
             PLATFORMS="linux/amd64,linux/arm64"
           fi
-          
+
           echo "DIR_NAME=$DIR_NAME" >> $GITHUB_ENV
           echo "DOCKERFILE_PATH=$DOCKERFILE_PATH" >> $GITHUB_ENV
           echo "PLATFORMS=$PLATFORMS" >> $GITHUB_ENV
-          
+
           echo "Directory Name: $DIR_NAME"
           echo "Dockerfile Path: $DOCKERFILE_PATH"
           echo "Platforms: $PLATFORMS"
