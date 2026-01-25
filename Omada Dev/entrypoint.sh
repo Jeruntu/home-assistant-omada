@@ -183,10 +183,10 @@ fi
 bashio::log.info "Starting Omada Controller..."
 
 # Tail logs
-if [ "${SHOW_SERVER_LOGS:-true}" = "true" ]; then
+if bashio::config.has_value 'show_server_logs' && bashio::config.true 'show_server_logs'; then
   gosu "${PUSERNAME}" tail -F -n 0 /opt/tplink/EAPController/logs/server.log &
 fi
-if [ "${SHOW_MONGODB_LOGS:-false}" = "true" ]; then
+if bashio::config.has_value 'show_mongodb_logs' && bashio::config.true 'show_mongodb_logs'; then
   gosu "${PUSERNAME}" tail -F -n 0 /opt/tplink/EAPController/logs/mongod.log &
 fi
 
