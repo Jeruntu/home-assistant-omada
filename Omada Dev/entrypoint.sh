@@ -7,13 +7,6 @@ set -e
 
 bashio::log.info "Preparing Home Assistant environment..."
 
-# Create logs directory in persistent volume
-mkdir -p "/data/logs"
-
-# Set permissions on /data
-# We assume PUID/PGID 508 for omada user
-chown -R 508:508 "/data"
-
 # SSL Configuration
 SSL_CERT_NAME=""
 SSL_KEY_NAME=""
@@ -62,7 +55,12 @@ fi
 bashio::log.info "Verifying data directories and symlinks..."
 mkdir -p /data/data
 mkdir -p /data/logs
-chown -R "${PUSERNAME}:${PGROUP}" /data
+
+# Set permissions on /data if needed
+if [ "$(stat -c '%u:%g' /data)" != "${PUID}:${PGID}" ]; then
+  bashio::log.info "Fixing permissions on /data (this may take a while)..."
+  chown -R "${PUID}:${PGID}" /data
+fi
 
 if [ -d "/opt/tplink/EAPController/data" ] && [ ! -L "/opt/tplink/EAPController/data" ]; then
   mv /opt/tplink/EAPController/data /opt/tplink/EAPController/data_backup
@@ -114,6 +112,14 @@ fi
 if bashio::config.has_value 'upgrade_https_port'; then
     export UPGRADE_HTTPS_PORT=$(bashio::config 'upgrade_https_port')
     bashio::log.info "Using configured UPGRADE_HTTPS_PORT: ${UPGRADE_HTTPS_PORT}"
+fi
+
+# Ensure omada.properties ends with a newline
+if [ -f "/opt/tplink/EAPController/properties/omada.properties" ]; then
+    # Check if the last line is empty; if not, append a newline
+    if [ -n "$(tail -c 1 /opt/tplink/EAPController/properties/omada.properties)" ]; then
+        echo "" >> /opt/tplink/EAPController/properties/omada.properties
+    fi
 fi
 
 # Update omada.properties: Ports
