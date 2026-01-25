@@ -1,5 +1,18 @@
 # Changelog
 
+## beta-6.1.0.19-ha1 2026-01-25
+
+- **Architecture Overhaul:**
+  - Complete refactor to use native Home Assistant S6 overlay v3 service supervision.
+  - Removed dependency on `mbentley` upstream submodule.
+  - Improved process management and reliability.
+- **New Features:**
+  - Added `show_mongodb_logs` option to debug internal database issues.
+  - Added `show_server_logs` option (enabled by default) to control server log verbosity.
+- **Fixes & Improvements:**
+  - Optimized startup time by checking permissions before applying them.
+  - Fixed `UnsatisfiedDependencyException` during boot.
+
 ## beta-6.1.0.19 2026-01-19
 
 - Updated to Omada version beta-6.1.0.19
