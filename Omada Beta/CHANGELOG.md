@@ -9,6 +9,7 @@
 - **New Features:**
   - Added `show_mongodb_logs` option to debug internal database issues.
   - Added `show_server_logs` option (enabled by default) to control server log verbosity.
+  - **Networking:** Enabled `host_network: true` by default to improve device discovery and simplify port management.
 - **Fixes & Improvements:**
   - Optimized startup time by checking permissions before applying them.
   - Fixed `UnsatisfiedDependencyException` during boot.

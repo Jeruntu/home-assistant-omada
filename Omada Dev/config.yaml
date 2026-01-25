@@ -26,22 +26,4 @@ schema:
   upgrade_https_port: int
   show_mongodb_logs: bool
   show_server_logs: bool
-ports:
-  8088/tcp: 8088
-  8043/tcp: 8043
-  8843/tcp: 8843
-  29810/tcp: 29810
-  29810/udp: 29810
-  29811/tcp: 29811
-  29811/udp: 29811
-  29812/tcp: 29812
-  29812/udp: 29812
-  29813/tcp: 29813
-  29813/udp: 29813
-  29814/tcp: 29814
-  29815/tcp: 29815
-  29815/udp: 29815
-  29816/tcp: 29816
-  29816/udp: 29816
-  29817/tcp: 29817
-  29817/udp: 29817
+host_network: true
