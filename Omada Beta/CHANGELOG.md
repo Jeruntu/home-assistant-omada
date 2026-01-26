@@ -1,5 +1,10 @@
 # Changelog
 
+## beta-6.1.0.19-ha2 2026-01-26
+
+- Add stop_timeout of 60 seconds and S6_SERVICES_GRACETIME for graceful MongoDB shutdown,
+this might be needed for hardware with limited resources.
+
 ## beta-6.1.0.19-ha1 2026-01-25
 
 - **Architecture Overhaul:**
