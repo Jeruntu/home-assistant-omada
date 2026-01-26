@@ -39,6 +39,11 @@ RUN if [ "${TARGETARCH}" = "amd64" ]; then \
     fi
 
 COPY entrypoint.sh /
+
+# Set s6-overlay timeouts
+# S6_SERVICES_GRACETIME: time (ms) to wait for services to stop (default 3000)
+ENV S6_SERVICES_GRACETIME=55000
+
 COPY rootfs /
 
 WORKDIR /opt/tplink/EAPController/lib

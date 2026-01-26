@@ -26,6 +26,10 @@ RUN /install.sh && rm /install.sh
 # entrypoint-rootless.sh is not needed for Home Assistant
 COPY entrypoint.sh /
 
+# Set s6-overlay timeouts
+# S6_SERVICES_GRACETIME: time (ms) to wait for services to stop (default 3000)
+ENV S6_SERVICES_GRACETIME=55000
+
 # Copy rootfs
 COPY rootfs /
 

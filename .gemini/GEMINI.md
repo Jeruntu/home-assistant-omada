@@ -1,0 +1,3 @@
+- NEVER commit or push changes without explicit permission from the user.
+- Use markdownlint formatting rules for all Markdown files.
+- Always end files with a newline character.
