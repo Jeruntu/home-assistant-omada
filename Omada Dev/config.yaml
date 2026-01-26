@@ -5,6 +5,7 @@ slug: omada_controller_dev
 description: TP-Link Omada Controller software
 webui: https://[HOST]:[PORT:8043]
 startup: application
+stop_timeout: 60
 arch:
   - aarch64
   - amd64
